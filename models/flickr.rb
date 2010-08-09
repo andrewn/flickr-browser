@@ -1,6 +1,6 @@
 class FlickrBrowser
   
-  require 'flickr'
+  require 'vendor/flickr-1.0.2/flickr'
   
   class Flickr::Photo
     def to_h
