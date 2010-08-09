@@ -1,5 +1,11 @@
 require 'rubygems'
 
+Dir[File.dirname(__FILE__) + "/../vendor/*"].each do |path|
+  gem_name = File.basename(path.gsub(/-\d+.\d+.\d+$/, ''))
+  gem_path = path + "/lib/" + gem_name + ".rb"
+  require gem_path if File.exists? gem_path
+end
+
 require 'models/flickr'
 
 require 'sinatra/base'
