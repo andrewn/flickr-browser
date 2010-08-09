@@ -2,21 +2,40 @@ class FlickrBrowser
   
   require 'flickr'
   
+  class Flickr::Photo
+    def to_h
+      {
+        :title  => title,
+        :url    => url,
+        :sizes  => sizes_to_hash(sizes)
+      }
+    end
+    
+    def sizes_to_hash( sizes ) 
+      h = {}
+      sizes.each do | s |
+        label = s['label']
+        h[label] = s
+      end
+      return h
+    end
+  end
+  
   @flickr = nil
-  @limit  = 
   
   def initialize( api_key='' )
     @flickr = Flickr.new( api_key )
   end
   
   def find( params={} )
-    
     if params[:group_url] and !params[:group_url].empty?
       group_id = @flickr.find_by_url( params[:group_url] ).id
       params[:group_id] = group_id
     end
-        
-    params[:limit] = 5 unless params[:limit] 
+    
+    if params[:limit]
+      parama.delete :limit
+    end
     
     compact_hash!( params )
     stringify_hash!( params )
@@ -26,9 +45,8 @@ class FlickrBrowser
     puts "\n\n*************"
     
     @flickr.photos( params )
-    
   end
-  
+    
   private
   def compact_hash!( hash )
     hash.each do | k,v |

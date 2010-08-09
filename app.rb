@@ -5,11 +5,13 @@ require 'models/flickr'
 require 'sinatra/base'
 require 'mustache/sinatra'
 
-require 'json'
+require 'json/pure'
 
 class App < Sinatra::Base
   register Mustache::Sinatra
   require 'views/layout'
+  
+  set :public, File.dirname(__FILE__) + '/public'
   
   set :mustache, {
     :views      => 'views/',
@@ -33,8 +35,8 @@ class App < Sinatra::Base
     
     format = ( params[:captures] ? params[:captures].first : 'html' ) 
         
-    min_taken_date = params[:from]
-    max_taken_date = params[:to]
+    min_taken_date = params[:to]
+    max_taken_date = params[:from]
     
     max_taken_date = nil if min_taken_date == max_taken_date
           
@@ -46,16 +48,24 @@ class App < Sinatra::Base
       :per_page       => params[:limit] # flickr's 'per_page' param
     }
     
-    @photos = flickr.find( finder_params )
+    #begin
+      @photos = flickr.find( finder_params )
+    #rescue
+    #  halt 500
+    #end
     
     case format
       when 'json' then
         content_type :json
-         @photos.to_json
+        @photos.map { |p| p.to_h }.to_json
       else
         mustache :photos
     end
     
+  end
+  
+  not_found do 
+    ''
   end
   
 end

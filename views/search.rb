@@ -5,9 +5,14 @@ class App
       DATE_FORMAT = '%Y-%m-%d'
       
       def today
-        return Time.now.strftime( DATE_FORMAT )
+        return DateTime.now.strftime( DATE_FORMAT )
       end
-
+      
+      def last_year
+        year_ago = DateTime.now << 3
+        return year_ago.strftime( DATE_FORMAT )
+      end
+      
     end
   end
 end

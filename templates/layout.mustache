@@ -1,6 +1,90 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link rel="stylesheet" type="text/css" href="/overcast/jquery-ui-1.8.4.custom.css">
+    
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/jquery-ui.min.js"></script>
+    <script>
+      (function () {
+          
+          var FORM_EL = '#search-form',
+              GROUP_EL = '#group',
+              LI_ITEM = '<img class="photo" src="{URL}" />';
+          
+          $(function() {     
+            
+            /*
+            $( GROUP_EL ).focus(function (evt) {
+                var placeholder = $(this).attr('placeholder'),
+                    url         = placeholder.replace('e.g. ', '');
+                $(this).val(url);
+            });
+            */
+            
+            var datePickerOpts = {
+              dateFormat: 'yy-mm-dd'
+            }
+            
+            $( '#from' ).datepicker(datePickerOpts);
+            $('#to').datepicker(datePickerOpts);
+               
+            $( FORM_EL ).submit( function (evt) {
+              
+              var paramsMap = getParamMap( 
+                          this, [
+                            'from', 'to', 'group', 'limit'
+                          ]);
+              var paramsString = toParamString( paramsMap );
+              
+              $.getJSON(
+                '/photos.json?' + paramsString,
+                null,
+                function ( data ) {
+                  
+                  var photosStr = '';
+                  
+                  data.forEach(function( item ) {
+                      photosStr += LI_ITEM.replace(
+                          '{URL}', 
+                          item.sizes.Square.source
+                      );
+                  });
+                                                                        
+                  $('#photos').html( photosStr );
+                  
+                }
+              );
+
+              return false;
+            });
+            
+            $( FORM_EL ).submit();
+          });
+
+          function getParamMap( formEl, keys ) {
+              var params = {};
+            
+              keys.forEach( function ( k ) {
+                  var value = $( FORM_EL + ' #' + k ).val();
+                  if ( value ) { params[k] = value; }
+              });
+           
+              return params;
+          }
+          
+          function toParamString( map ) {
+              var str = '';
+              for( var k in map ) {
+                str += k + '=' + map[k] + '&';
+              }
+              return str;
+          }
+      })();
+
+      
+    </script>
+    
     <title>
       {{title}}
     </title>
@@ -23,5 +107,6 @@
     <div id="main">
       {{{yield}}}
     </div>
+    <div id="photos"></div>
   </body>
 </html>

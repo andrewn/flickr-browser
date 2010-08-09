@@ -1,15 +1,15 @@
 <h1>Flickr Browser</h1>
 
-<form action="/photos">
+<form id='search-form' action="/photos">
 	
 	<label for="from">From:</label>
-	<input type="date" name="from" value="{{today}}" id="from">
+	<input type="date" name="from" value="{{last_year}}" id="from">
 	
 	<label for="to">To:</label>
-	<input type="date" name="to" value="{{today}}" id="to">
+	<input type="date" name="to" value="" id="to">
 	
 	<label for="group">Group URL:</label>
-	<input type="url" name="group" value="" id="group" placeholder="e.g. http://www.flickr.com/groups/weatherphoto/">
+	<input type="url" name="group" value="http://www.flickr.com/groups/weatherphoto/" id="group" placeholder="e.g. http://www.flickr.com/groups/weatherphoto/">
 	
 	<label for="limit">Number of photos to show:</label>
 	<input  type="range"
@@ -17,7 +17,7 @@
 	        max="50"
 	        step="1" 
 	        name="limit" 
-	        value="2" 
+	        value="10" 
 	        id="limit">
 	
 	<input type="submit" name="submit" value="Search" id="submit">
