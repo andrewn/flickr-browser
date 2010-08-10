@@ -6,6 +6,74 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/jquery-ui.min.js"></script>
     <script>
+    var spinner;
+            
+        function getLoading(context, bars, center, innerRadius, size, color) {
+          var animating = true,
+              currentOffset = 0;
+          function makeRGBA(){
+              return "rgba(" + [].slice.call(arguments, 0).join(",") + ")";
+          }
+          function drawBlock(ctx, barNo){
+              ctx.fillStyle = makeRGBA(color.red, color.green, color.blue, (bars+1-barNo)/(bars+1));
+              ctx.fillRect(-size.width/2, 0, size.width, size.height);
+          }
+          function calculateAngle(barNo){
+              return 2 * barNo * Math.PI / bars;
+          }
+          function calculatePosition(barNo){
+              angle = calculateAngle(barNo);
+              return {
+                  y: (innerRadius * Math.cos(-angle)),
+                  x: (innerRadius * Math.sin(-angle)),
+                  angle: angle
+              };
+          }
+          function draw(ctx, offset) {
+              clearFrame(ctx);
+              ctx.save();
+              ctx.translate(center.x, center.y);
+              for(var i = 0; i<bars; i++){
+                  var curbar = (offset+i) % bars,
+                      pos = calculatePosition(curbar);
+                  ctx.save();
+                  ctx.translate(pos.x, pos.y);
+                  ctx.rotate(pos.angle);
+                  drawBlock(context, i);
+                  ctx.restore();
+              }
+              ctx.restore();
+          }
+          function clearFrame(ctx) {
+              ctx.clearRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight);
+          }
+          function nextAnimation(){
+              if (!animating) {
+                  return;
+              };
+              currentOffset = (currentOffset + 1) % bars;
+              draw(context, currentOffset);
+              setTimeout(nextAnimation, 50);
+          }
+          nextAnimation(0);
+          return {
+              stop: function (){
+                  animating = false;
+                  clearFrame(context);
+              },
+              start: function (){
+                  animating = true;
+                  nextAnimation(0);
+              }
+          };
+        }
+        
+        $( function() {
+           spinner = getLoading( $('#loading')[0].getContext("2d"), 9, {x:100, y:100}, 10, {width: 2, height:10}, {red: 0, green: 17, blue: 58});
+          spinner.stop()
+        });
+            
+    
       (function () {
           
           var FORM_EL = '#search-form',
@@ -37,6 +105,7 @@
                           ]);
               var paramsString = toParamString( paramsMap );
               
+              spinner.start();
               $.getJSON(
                 '/photos.json?' + paramsString,
                 null,
@@ -52,6 +121,8 @@
                   });
                                                                         
                   $('#photos').html( photosStr );
+                  
+                  spinner.stop();
                   
                 }
               );
@@ -101,12 +172,19 @@
         float: left;
       }
       
+      #loading {
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+      
     </style>
   </head>
   <body>
     <div id="main">
       {{{yield}}}
     </div>
+    <canvas id='loading'></canvas>
     <div id="photos"></div>
   </body>
 </html>
