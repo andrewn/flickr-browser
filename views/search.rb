@@ -1,6 +1,8 @@
 class App
   module Views
     class Search < Mustache
+    
+      require 'date'
       
       DATE_FORMAT = '%Y-%m-%d'
       
