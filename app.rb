@@ -33,6 +33,8 @@ class App < Sinatra::Base
   
   get %r{/photos.?(json)?} do
     
+    response.headers['Cache-Control'] = 'public, max-age=300'
+    
     format = ( params[:captures] ? params[:captures].first : 'html' ) 
         
     min_taken_date = params[:to]

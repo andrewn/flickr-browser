@@ -6,71 +6,25 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/jquery-ui.min.js"></script>
     <script>
+    window.imageSize = 'Square';
+    
     var spinner;
             
-        function getLoading(context, bars, center, innerRadius, size, color) {
-          var animating = true,
-              currentOffset = 0;
-          function makeRGBA(){
-              return "rgba(" + [].slice.call(arguments, 0).join(",") + ")";
-          }
-          function drawBlock(ctx, barNo){
-              ctx.fillStyle = makeRGBA(color.red, color.green, color.blue, (bars+1-barNo)/(bars+1));
-              ctx.fillRect(-size.width/2, 0, size.width, size.height);
-          }
-          function calculateAngle(barNo){
-              return 2 * barNo * Math.PI / bars;
-          }
-          function calculatePosition(barNo){
-              angle = calculateAngle(barNo);
-              return {
-                  y: (innerRadius * Math.cos(-angle)),
-                  x: (innerRadius * Math.sin(-angle)),
-                  angle: angle
-              };
-          }
-          function draw(ctx, offset) {
-              clearFrame(ctx);
-              ctx.save();
-              ctx.translate(center.x, center.y);
-              for(var i = 0; i<bars; i++){
-                  var curbar = (offset+i) % bars,
-                      pos = calculatePosition(curbar);
-                  ctx.save();
-                  ctx.translate(pos.x, pos.y);
-                  ctx.rotate(pos.angle);
-                  drawBlock(context, i);
-                  ctx.restore();
-              }
-              ctx.restore();
-          }
-          function clearFrame(ctx) {
-              ctx.clearRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight);
-          }
-          function nextAnimation(){
-              if (!animating) {
-                  return;
-              };
-              currentOffset = (currentOffset + 1) % bars;
-              draw(context, currentOffset);
-              setTimeout(nextAnimation, 300);
-          }
-          nextAnimation(0);
+        function getLoading(el) {
+          
           return {
               stop: function (){
-                  animating = false;
-                  clearFrame(context);
+                  $(el).hide();
               },
               start: function (){
-                  animating = true;
-                  nextAnimation(0);
+                  $(el).show();
               }
           };
         }
         
         $( function() {
-           spinner = getLoading( $('#loading')[0].getContext("2d"), 9, {x:0, y:0}, 10, {width: 2, height:10}, {red: 255, green: 255, blue: 255});
-          spinner.stop()
+           spinner = getLoading( $('#loading') );
+           spinner.stop()
         });
             
     
@@ -78,7 +32,7 @@
           
           var FORM_EL = '#search-form',
               GROUP_EL = '#group',
-              LI_ITEM = '<img class="photo" src="{URL}" />';
+              LI_ITEM = '<a href="{LINK}"><img class="photo" src="{URL}" /></a>';
           
           $(function() {     
             
@@ -96,7 +50,14 @@
             
             $( '#from' ).datepicker(datePickerOpts);
             $('#to').datepicker(datePickerOpts);
-               
+            
+            $('input[type=radio]').click( function() {
+              window.imageSize = $(this).val();
+              if ( window.photoData ) { processData(window.photoData); }
+            });
+            //$('input[name="image-size"]:checked', '#myForm').val()
+            
+            
             $( FORM_EL ).submit( function (evt) {
               
               var paramsMap = getParamMap( 
@@ -111,17 +72,8 @@
                 null,
                 function ( data ) {
                   
-                  var photosStr = '';
-                  
-                  data.forEach(function( item ) {
-                      photosStr += LI_ITEM.replace(
-                          '{URL}', 
-                          item.sizes.Square.source
-                      );
-                  });
-                                                                        
-                  $('#photos').html( photosStr );
-                  
+                  window.photoData = data;
+                  processData( data );
                   spinner.stop();
                   
                 }
@@ -132,6 +84,27 @@
             
             $( FORM_EL ).submit();
           });
+          
+          function processData( data ) {
+            var photosStr = '';
+            
+            data.forEach(function( item ) {
+                 
+                var imageSize = item.sizes[window.imageSize] ? window.imageSize : 'Square';
+              
+                var li = LI_ITEM.replace(
+                    '{URL}', 
+                    item.sizes[imageSize].source
+                );
+                li = li.replace(
+                    '{LINK}', 
+                    item.url
+                );
+                photosStr += li;
+            });
+                                                                  
+            $('#photos').html( photosStr );
+          }
 
           function getParamMap( formEl, keys ) {
               var params = {};
@@ -187,10 +160,10 @@
       #loading {
         position: absolute;
         left: 10px;
-        top: 100px;
+        bottom: 10px;
       }
-      
-      #search-form {
+    
+      .hud {
         color: #FFF;
         width: 320px;
         border: 1px solid #EEE;
@@ -201,6 +174,10 @@
         left: 50%;
         z-index: 1000;
         font-size: 11px;
+      }
+      
+      #search-form {
+        position: relative;
       }
       
       #search-form fieldset {
@@ -216,29 +193,34 @@
         margin-bottom: 5px;
         width: 300px;
       }
-      
+
+      #search-form label,
+      #search-form input {
+        /* height: 20px; */
+      }
+
       #search-form label {
         float: left;
         text-align: right;
         width: 100px;
         padding-right: 10px;
       }
-      
+   
       #search-form input {
         float: left;
         width: 200px;
       }
       
+  
       #search-form input[type="range"]{
-         -webkit-appearance:none !important;
-         background-color: 1px solid rgba(255,255,255,0.4);
-       }
-
+         z-index: 9999999;
+      }
+/*
       #search-form input[type="range"]::-webkit-slider-thumb{
-         /*-webkit-appearance:none !important; 
-         background-color: 1px solid white; */
+         -webkit-appearance:none !important; 
+         background-color: 1px solid white; 
        }
-      
+*/      
       #search-form input[type^=submit] {
         border: 1px solid #FFF;
         background-color: #000;
