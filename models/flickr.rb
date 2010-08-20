@@ -34,7 +34,12 @@ class FlickrBrowser
     end
     
     if params[:limit]
-      parama.delete :limit
+      params.delete :limit
+    end
+    
+    if params[:search_term]
+      params[:text] = params[:search_term]
+      params.delete :search_term
     end
     
     compact_hash!( params )

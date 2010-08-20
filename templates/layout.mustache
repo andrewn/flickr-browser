@@ -57,12 +57,18 @@
             });
             //$('input[name="image-size"]:checked', '#myForm').val()
             
+            /*
+            $('#limit').click( function() {
+              window.imageSize = $(this).val();
+              if ( window.photoData ) { processData(window.photoData); }
+            });
+            */
             
             $( FORM_EL ).submit( function (evt) {
               
               var paramsMap = getParamMap( 
                           this, [
-                            'from', 'to', 'group', 'limit'
+                            'from', 'to', 'group', 'limit', 'search'
                           ]);
               var paramsString = toParamString( paramsMap );
               

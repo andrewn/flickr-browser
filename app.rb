@@ -47,7 +47,8 @@ class App < Sinatra::Base
       :min_taken_date => min_taken_date,
       :max_taken_date => max_taken_date,
       :group_url      => params[:group],
-      :per_page       => params[:limit] # flickr's 'per_page' param
+      :per_page       => params[:limit], # flickr's 'per_page' param
+      :search_term    => params[:search]
     }
     
     #begin
