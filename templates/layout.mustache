@@ -64,6 +64,16 @@
             });
             */
             
+            $( '.hud' ).mouseenter( function (evt) {
+              $(this).animate({ 'opacity' : 1 }, { duration: 300 });
+            })
+
+            $( '.hud' ).mouseleave( function (evt) {
+              $(this).animate({ 'opacity' : 0.5 }, { duration: 300 });
+            })
+            
+            $( '.hud' ).mouseleave();
+            
             $( FORM_EL ).submit( function (evt) {
               
               var paramsMap = getParamMap( 
